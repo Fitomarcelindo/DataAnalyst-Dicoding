@@ -8,8 +8,8 @@ import urllib.request
 
 # Load datasets
 try:
-    all_df = pd.read_csv('df.csv')
-    geolocation = pd.read_csv('geolocation.csv')
+    all_df = pd.read_csv('dashboard/df.csv')
+    geolocation = pd.read_csv('dashboard/geolocation.csv')
 except FileNotFoundError:
     st.error("Required data files are missing. Please ensure 'df.csv' and 'geolocation.csv' are available in the working directory.")
     st.stop()
@@ -97,6 +97,16 @@ if 'price' in filtered_df.columns:
 else:
     st.warning("Kolom harga tidak ditemukan dalam dataset.")
 
+# Streamlit Visualization of Relationship Between Product Price and Sell Probability
+st.subheader("Relationship Between Product Price and Sell Probability")
+try:
+    st.image("dashboard/product_price_vs_probability.png", 
+             caption="Relationship Between Product Price and Sell Probability", 
+             use_container_width=True)
+except FileNotFoundError:
+    st.warning("Image file 'product_price_vs_probability.png' not found. Please ensure the file is in the correct directory.")
+
+
 # Map Visualization
 st.subheader("Distribusi Geolokasi Pelanggan")
 try:
@@ -104,7 +114,8 @@ try:
     with st.expander("Klik untuk melihat Peta Geolokasi"):
         st.title("Dashboard Gambar dengan Streamlit")
         # Menampilkan gambar dari URL
-        st.image("MapBrazil.png", caption="Geolokasi Pelanggan", use_column_width=True)
+        st.image("dashboard/MapBrazil.png",  caption="Geolokasi Pelanggan", 
+             use_container_width=True)
         # Menampilkan teks tambahan
         st.write("Gambar di atas adalah contoh bagaimana menampilkan gambar dari URL di Streamlit.")
 except Exception as e:
