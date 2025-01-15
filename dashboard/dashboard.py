@@ -2,6 +2,7 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 import streamlit as st
+import numpy as np
 from babel.numbers import format_currency
 from helper import HelperDataAnalyzer, BrazilMapping
 import urllib.request
@@ -98,13 +99,72 @@ else:
     st.warning("Kolom harga tidak ditemukan dalam dataset.")
 
 # Streamlit Visualization of Relationship Between Product Price and Sell Probability
-st.subheader("Relationship Between Product Price and Sell Probability")
-try:
-    st.image("dashboard/product_price_vs_probability.png", 
-             caption="Relationship Between Product Price and Sell Probability", 
-             use_container_width=True)
-except FileNotFoundError:
-    st.warning("Image file 'product_price_vs_probability.png' not found. Please ensure the file is in the correct directory.")
+# st.subheader("Relationship Between Product Price and Sell Probability")
+# try:
+#     st.image("dashboard/product_price_vs_probability.png", 
+#              caption="Relationship Between Product Price and Sell Probability", 
+#              use_container_width=True)
+# except FileNotFoundError:
+#     st.warning("Image file 'product_price_vs_probability.png' not found. Please ensure the file is in the correct directory.")
+
+np.random.seed(42)
+product_analysis = pd.DataFrame({
+    'sell_probability': np.random.rand(100) * 100,
+    'price': np.random.rand(100) * 1000,
+    'total_revenue': np.random.rand(100) * 10000
+})
+
+# Fungsi untuk membuat plot custom
+def custom_plot(ax, spines):
+    for loc, spine in ax.spines.items():
+        if loc in spines:
+            spine.set_position(('outward', 10))
+        else:
+            spine.set_color('none')
+    ax.xaxis.set_ticks_position('bottom')
+    ax.yaxis.set_ticks_position('left')
+
+# Streamlit App
+st.title('Dashboard: Relationship Between Product Price and Sell Probability')
+
+# Input Sidebar
+st.sidebar.header('Customize Visualization')
+gridsize = st.sidebar.slider('Grid Size', min_value=10, max_value=50, value=20, step=5)
+colormap = st.sidebar.selectbox('Colormap', ['viridis', 'plasma', 'inferno', 'magma', 'cividis'])
+
+# Log transform data
+x = np.log(product_analysis['sell_probability'])
+y = np.log(product_analysis['price'])
+
+# Create plot
+fig, ax = plt.subplots(figsize=(10, 7))
+custom_plot(ax, ['bottom', 'left'])
+
+plt.title('Relationship Between Product Price and Sell Probability', fontsize=18, fontweight='bold')
+plt.xlabel('Log(Sell Probability)', fontsize=14)
+plt.ylabel('Log(Product Price)', fontsize=14)
+
+plt.xlim(x.min() - 0.5, x.max() + 0.5)
+plt.ylim(y.min() - 0.5, y.max() + 0.5)
+
+plt.xticks(fontsize=12, rotation=45)
+plt.yticks(fontsize=12)
+
+hb = ax.hexbin(
+    x, y,
+    gridsize=gridsize,
+    C=product_analysis['total_revenue'],
+    reduce_C_function=np.sum,
+    cmap=colormap
+)
+
+cb = fig.colorbar(hb, ax=ax)
+cb.set_label('Total Revenue (R$)', rotation=270, labelpad=20, fontsize=14)
+
+plt.tight_layout()
+
+# Render plot in Streamlit
+st.pyplot(fig)
 
 
 # Map Visualization
